@@ -197,11 +197,11 @@
             },
             methods: {
                 async fetchSongs() {
-                    const response = await fetch('./_songs-list.json'); // Ruta ajustada
+                    const response = await fetch('/_songs-list.json'); // Ruta ajustada
                     const songFiles = await response.json();
 
                     for (let file of songFiles) {
-                        const songResponse = await fetch(`./${file}`); // Ruta ajustada
+                        const songResponse = await fetch(`/${file}`); // Ruta ajustada
                         const songData = await songResponse.json();
                         this.songs.push(songData);
                     }

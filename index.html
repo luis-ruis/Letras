@@ -197,11 +197,11 @@
             },
             methods: {
                 async fetchSongs() {
-                    const response = await fetch('/song-lyrics-converter/songs/_songs-list.json'); // Ruta ajustada
+                    const response = await fetch('/Letras.io/song-lyrics-converter/songs/_songs-list.json');
                     const songFiles = await response.json();
-
+                    
                     for (let file of songFiles) {
-                        const songResponse = await fetch(`/song-lyrics-converter/songs/${file}`); // Ruta ajustada
+                        const songResponse = await fetch(`/Letras.io/song-lyrics-converter/songs/${file}`);
                         const songData = await songResponse.json();
                         this.songs.push(songData);
                     }

@@ -166,10 +166,10 @@
             <br><br>
             <div class="text-center">
                 <h2 class="text-4xl font-bold mb-4">{{ selectedSong.title }}</h2>
-                <p class="text-gray-700 mb-2"><strong>Artist:</strong> {{ selectedSong.artist || '' }}</p>
-                <p class="text-gray-700 mb-2"><strong>Description:</strong> {{ selectedSong.description || '' }}</p>
-                <p class="text-gray-700 mb-2"><strong>Tone:</strong> {{ selectedSong.tone || '' }}</p>
-                <p class="text-gray-700 mb-2"><strong>BPM:</strong> {{ selectedSong.bpm || '' }}</p>
+                <p v-if="selectedSong.artist" class="text-gray-700 mb-2"><strong>Artist:</strong> {{ selectedSong.artist }}</p>
+                <p v-if="selectedSong.description" class="text-gray-700 mb-2"><strong>Description:</strong> {{ selectedSong.description }}</p>
+                <p v-if="selectedSong.tone" class="text-gray-700 mb-2"><strong>Tone:</strong> {{ selectedSong.tone }}</p>
+                <p v-if="selectedSong.bpm" class="text-gray-700 mb-2"><strong>BPM:</strong> {{ selectedSong.bpm }}</p>
                 <p class="mt-4 whitespace-pre-wrap" v-html="formattedLyrics"></p>
             </div>
         </div>
@@ -182,24 +182,7 @@
             data: {
                 searchQuery: '',
                 songs: [
-                    {
-                        "id": 1,
-                        "title": "A el alto y sublime",
-                        "artist": "",
-                        "description": "",
-                        "tone": "",
-                        "bpm": "",
-                        "lyrics": "A el alto y sublime\\nQue habita la eternidad\\nY su nombre es el Santo de Israel\\n\\nAl que habita en las alturas\\nY en la Santidad\\nY con el quebrantado y humilde de espíritu\\n\\nPara hacer vivir \\nel espíritu humilde\\nY para vivificar\\nel corazón quebrantado\\n\\nSea la gloria\\nHonor\\nAlabanza y poder\\n\\nAl que reina\\nPor los siglos\\nY su nombre Santo es\\n\\n♪\\n\\nA el alto y sublime\\nQue habita la eternidad\\nY su nombre es el Santo de Israel\\n\\nAl que habita en las alturas\\nY en la santidad\\nY con el quebrantado y humilde de espíritu\\n\\nPara hacer vivir el espíritu humilde\\nY para vivificar\\nEl corazón quebrantado\\n\\nSea la gloria\\nHonor\\nAlabanza y poder\\n\\nAl que reina\\nPor los siglos\\nY su nombre Santo es\\n\\nSea la gloria\\nHonor\\nAlabanza y poder\\n\\nAl que reina\\nPor los siglos\\nY su nombre Santo es\\n\\nSea la gloria\\nHonor\\nAlabanza y poder\\n\\nAl que reina\\nPor los siglos\\nY su nombre Santo es\\nY su nombre Santo es"
-                    },
-                    {
-                        "id": 12,
-                        "title": "Cuán grande es Dios",
-                        "artist": "Espíritu y Verdad",
-                        "description": "",
-                        "tone": "C",
-                        "bpm": "138",
-                        "lyrics": "El esplendor de un rey\\nVestido en majestad\\nLa tierra alegre está\\nLa tierra alegre está\\nCubierto está de luz\\nVenció la oscuridad\\nY tiembla a su voz\\nTiembla a su voz\\n\\nCuán grande es Dios\\nCántale cuán grande es Dios\\nY todos lo verán, cuán grande es Dios\\n\\nEl esplendor de un rey\\nVestido en majestad\\nLa tierra alegre está\\nLa tierra alegre está\\nCubierto está de luz\\nVenció la oscuridad\\nY tiembla a su voz\\nTiembla a su voz\\n\\nCuán grande es Dios\\nCántale cuán grande es Dios\\nY todos lo verán, cuán grande es Dios\\n\\nCuán grande es Dios\\nCántale cuán grande es Dios\\nY todos lo verán, cuán grande es Dios\\n\\nDía a día él está\\nY el tiempo está en él\\nPrincipio y el fin\\nPrincipio y el fin\\nLa trinidad en Dios\\nEl padre, hijo, espíritu\\nCordero y el león\\nCordero y el león\\n\\nCuán grande es Dios\\nCántale cuán grande es Dios\\nY todos lo verán, cuán grande es Dios\\n\\nCuán grande es Dios\\nCántale cuán grande es Dios\\nY todos lo verán, cuán grande es Dios\\n\\nY tu nombre sobre todo es\\nTú eres digno de alabar\\nY mi ser dirá\\nCuán grande es Dios\\n\\nY tu nombre sobre todo es\\nTú eres digno de alabar\\nY mi ser dirá\\nCuán grande es Dios\\n\\nCuán grande es Dios\\nCántale cuán grande es Dios\\nY todos lo verán, cuán grande es Dios\\n\\nCuán grande es Dios\\nCántale cuán grande es Dios\\nY todos lo verán, cuán grande es Dios\\n\\nCuán grande es Dios\\nCántale cuán grande es Dios\\nY todos lo verán, cuán grande es Dios\\n\\nCuán grande es Dios\\nCántale cuán grande es Dios\\nY todos lo verán, cuán grande es Dios\\n\\nCuán grande es Dios\\nCántale cuán grande es Dios\\nY todos lo verán, cuán grande es Dios\\n\\nCuán grande es Dios\\nCántale cuán grande es Dios\\nY todos lo verán, cuán grande es Dios"
-                    }
+                    
                 ], // Aquí puedes agregar canciones manualmente
                 selectedSong: null,
                 sidebarVisible: false // Inicialmente oculto

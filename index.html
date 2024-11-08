@@ -65,6 +65,8 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            overflow: hidden;
         }
 
         .back-button {
@@ -154,11 +156,31 @@
                         Amor</text>
                 </svg>
             </div>
-            <h1 class="text-5xl font-bold mb-4 headline">Bienvenido a mi repertorio de canciones</h1>
+            <h1 class="text-xl font-bold mb-4 headline">Bienvenido a mi repertorio de canciones</h1>
             <p class="text-xl mb-8 description">Descubre y visualiza las letras de las canciones cristianas utilizadas
                 en el Centro de Fe Esperanza y Amor de Puerto Escondido. Usa el menú para buscar y seleccionar
                 canciones, y ver sus detalles en pantalla completa.</p>
             <p class="text-lg">Para empezar, abre el menú y elige una canción de la lista.</p>
+            <div class="text-center my-4">
+                <button @click="showForm = !showForm" class=" text-white px-4 py-2 rounded">
+                    {{ showForm ? 'Ocultar Formulario' : 'Agregar Nueva Canción' }}
+                </button>
+            </div>
+        </div>
+        
+        <div v-if="showForm" class="p-10 shadow-lg rounded-lg mt-10">
+            <h2 class="text-2xl font-bold mb-4">Agregar Nueva Canción</h2>
+            <form @submit.prevent="addSong">
+                <input v-model="newSong.title" placeholder="Título" class="mb-2 p-2 border rounded w-full">
+                <input v-model="newSong.artist" placeholder="Artista" class="mb-2 p-2 border rounded w-full">
+                <input v-model="newSong.tone" placeholder="Tonalidad" class="mb-2 p-2 border rounded w-full">
+                <input v-model="newSong.bpm" placeholder="BPM" type="number" class="mb-2 p-2 border rounded w-full">
+                <input v-model="newSong.description" placeholder="Descripción" class="mb-2 p-2 border rounded w-full">
+                <textarea v-model="newSong.lyrics" placeholder="Letras de la canción" class="mb-2 p-2 border rounded w-full"></textarea>
+                <input v-model="newSong.spotify" placeholder="Spotify URL" class="mb-2 p-2 border rounded w-full">
+                <input v-model="newSong.youtube" placeholder="YouTube URL" class="mb-2 p-2 border rounded w-full">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Agregar Canción</button>
+            </form>
         </div>
 
         <!-- Contenido de la canción seleccionada -->

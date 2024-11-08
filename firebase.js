@@ -35,8 +35,23 @@ export const getTask = async () => {
     }
 };
 
-
-
+export const saveSong = async (title, artist, tone, bpm, description, lyrics, spotify, youtube) => {
+    try {
+        await addDoc(collection(db, 'songs'), {
+            title: title || "",
+            artist: artist || "",
+            tone: tone || "",
+            bpm: bpm || "",
+            description: description || "",
+            lyrics: lyrics || "",
+            spotify: spotify || "",
+            youtube: youtube || ""
+        });
+        console.log("Canción agregada exitosamente");
+    } catch (error) {
+        console.error("Error al agregar la canción:", error);
+    }
+};
 
 
 export const saveTask = (title, description) => {

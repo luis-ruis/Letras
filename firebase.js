@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAuB8ITbJCMWqZ9D3xAYeI1MAFgfp2pL9k",
@@ -26,7 +26,8 @@ export const getTask = async () => {
             description: doc.data().description || "",
             lyrics: doc.data().lyrics || "",
             spotify: doc.data().spotify || "",
-            youtube: doc.data().youtube || ""
+            youtube: doc.data().youtube || "",
+            tag: doc.data().tag || ""
         }));
 
         return songs; // Retorna directamente el array procesado
@@ -35,7 +36,7 @@ export const getTask = async () => {
     }
 };
 
-export const saveSong = async (title, artist, tone, bpm, description, lyrics, spotify, youtube) => {
+export const saveSong = async (title, artist, tone, bpm, description, lyrics, spotify, youtube, tag) => {
     try {
         await addDoc(collection(db, 'songs'), {
             title: title || "",
@@ -45,17 +46,32 @@ export const saveSong = async (title, artist, tone, bpm, description, lyrics, sp
             description: description || "",
             lyrics: lyrics || "",
             spotify: spotify || "",
-            youtube: youtube || ""
+            youtube: youtube || "",
+            tag: tag || ""
         });
-        console.log("Canción agregada exitosamente");
+        console.log("Canción guardada exitosamente");
     } catch (error) {
         console.error("Error al agregar la canción:", error);
     }
 };
 
-
-export const saveTask = (title, description) => {
-    addDoc(collection(db, 'songs'), {title:'lyrics', description:'description'});
-}
-
-export const deleteTask = (id) => deleteDoc(doc(db, 'tasks'), id);
+export const updateSongFirebase = async (songId, { title, artist, tone, bpm, description, lyrics, spotify, youtube, tag }) => {
+    try {
+        const updatedSong = {
+            title: title || "",
+            artist: artist || "",
+            tone: tone || "",
+            bpm: bpm || "",
+            description: description || "",
+            lyrics: lyrics || "",
+            spotify: spotify || "",
+            youtube: youtube || "",
+            tag: tag || "",
+        };
+        await updateDoc(doc(db, 'songs', songId), updatedSong);
+        console.log('Canción actualizada exitosamente');
+    } catch (error) {
+        console.error("Error al actualizar la canción:", error);
+        alert('Error al actualizar la canción');
+    }
+};

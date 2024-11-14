@@ -1,218 +1,313 @@
 <!DOCTYPE html>
 <html lang="es">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Song Lyrics</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <style>
-        html,
-        body {
-            scroll-behavior: smooth;
-            /* Habilita el scroll suave */
-            height: 100%;
-            /* Asegura que el body ocupe toda la altura */
-            margin: 0;
-            /* Elimina márgenes */
-            font-size: 16px;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>My Song Lyrics</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+            rel="stylesheet">
+        <link rel="stylesheet" href="style.css">
+    </head>
 
-        #sidebar {
-            transition: transform 0.3s ease;
-            transform: translateX(-100%);
-            /* Inicialmente oculto */
-            height: 100vh;
-            /* Altura completa de la ventana */
-        }
+    <body class="bg-gray-100 text-gray-900">
 
-        #sidebar.show {
-            transform: translateX(0);
-            /* Mostrar menú */
-        }
+        <div id="app" class="relative">
+            <!-- Menú lateral -->
+            <div id="sidebar" :class="{ 'show': sidebarVisible }"
+                class="w-128 bg-white shadow-lg fixed top-0 left-0">
+                <br><br><br>
+                <div class="scrollable-list p-5">
+                    <input v-model="searchQuery" type="text"
+                        placeholder="Search for a song..."
+                        class="mb-5 p-2 w-full border rounded">
+                    <ul class="space-y-2">
+                        <li v-for="song in filteredSongs" :key="song.id"
+                            class="song-item">
+                            <button @click="selectSong(song)"
+                                class="text-left w-full hover:text-blue-500 focus:outline-none">
+                                {{ song.title }}
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
-        .menu-button {
-            z-index: 20;
-        }
+            <!-- Botón para mostrar/ocultar el menú lateral -->
+            <button @click="toggleSidebar"
+                class="fixed top-4 left-4 text-2xl bg-blue-500 text-white px-2 py-1 rounded shadow-lg menu-button">
+                ☰
+            </button>
 
-        #sidebar {
-            z-index: 10;
-        }
+            <!-- Pantalla principal -->
+            <div v-if="!selectedSong"
+                class="container bg-gradient-to-r from-blue-400 to-green-400 text-center text-white shadow-lg p-10">
+                <!-- Logo -->
+                <div class="mb-8">
+                    <svg class="logo" viewBox="0 0 100 100"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="50" fill="#ffffff" />
+                        <text x="50" y="50" font-size="10" text-anchor="middle"
+                            fill="#3B82F6" dy=".3em">Centro de Fe</text>
+                        <text x="50" y="60" font-size="8" text-anchor="middle"
+                            fill="#3B82F6" dy=".3em">Esperanza y
+                            Amor</text>
+                    </svg>
+                </div>
+                <h1 class="text-xl font-bold mb-4 headline">Bienvenido a mi
+                    repertorio de canciones</h1>
+                <p class="text-xl mb-8 description">Descubre y visualiza las
+                    letras de las canciones cristianas utilizadas
+                    en el Centro de Fe Esperanza y Amor de Puerto Escondido. Usa
+                    el menú para buscar y seleccionar
+                    canciones, y ver sus detalles en pantalla completa.</p>
+                <p class="text-lg">Para empezar, abre el menú y elige una
+                    canción de la lista.</p>
+                <div class="text-center my-4">
+                    <button @click="showForm = !showForm"
+                        class=" text-white px-4 py-2 rounded">
+                        {{ showForm ? 'Ocultar Formulario' :
+                        'Agregar Nueva Canción' }}
+                    </button>
+                    <button @click="showTable = !showTable"
+                        class=" text-white px-4 py-2 rounded">
+                        {{ showTable ? 'Ocultar listado' :
+                        'Ver listado de canciones' }}
+                    </button>
+                </div>
+            </div>
 
-        .scrollable-list {
-            max-height: calc(100vh - 100px);
-            /* Altura máxima menos espacio para el botón y margen */
-            overflow-y: auto;
-            /* Habilita el scroll vertical */
-        }
+            <div v-if="showForm" class="p-10 shadow-lg rounded-lg mt-10">
+                <h2 class="text-2xl font-bold mb-4">Agregar Nueva Canción</h2>
+                <form @submit.prevent="addSong">
+                    <input v-model="newSong.title" placeholder="Título"
+                        class="mb-2 p-2 border rounded w-full">
+                    <input v-model="newSong.artist" placeholder="Artista"
+                        class="mb-2 p-2 border rounded w-full">
+                    <input v-model="newSong.tag" placeholder="Tag"
+                        class="mb-2 p-2 border rounded w-full">
+                    <input v-model="newSong.tone" placeholder="Tonalidad"
+                        class="mb-2 p-2 border rounded w-full">
+                    <input v-model="newSong.bpm" placeholder="BPM" type="number"
+                        class="mb-2 p-2 border rounded w-full">
+                    <input v-model="newSong.description"
+                        placeholder="Descripción"
+                        class="mb-2 p-2 border rounded w-full">
+                    <div class="text-justify"
+                        style="color: gray; font-size: 0.8em;">
+                        <span style="color: darkgrey; cursor: pointer;"
+                            onclick="toggleExpandTextArea('textAreaNew', this)">Expandir
+                            letras ▼</span>
+                    </div>
+                    <textarea v-model="newSong.lyrics"
+                        placeholder="Letras de la canción"
+                        class="mb-2 p-2 border rounded w-full"
+                        oninput="adjustHeight(this)" rows="1"
+                        id="textAreaNew"></textarea>
+                    <input v-model="newSong.spotify" placeholder="Spotify URL"
+                        class="mb-2 p-2 border rounded w-full">
+                    <input v-model="newSong.youtube" placeholder="YouTube URL"
+                        class="mb-2 p-2 border rounded w-full">
+                    <button type="submit"
+                        class="bg-blue-500 text-white px-4 py-2 mt-4 rounded w-full">Agregar
+                        Canción</button>
+                </form>
+            </div>
 
-        .song-item {
-            font-size: 1em;
-            /* Tamaño de letra ajustado para dispositivos móviles */
-            line-height: 1.5;
-        }
+            <!-- Tabla de canciones -->
+            <div v-if="showTable" class="py-10 px-2 shadow-lg rounded-lg">
+                <table class="w-full table-auto border-collapse">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border  py-2 cursor-pointer"
+                                @click="sortBy('title')">
+                                Título
+                                <input v-model="filterTitle" type="text"
+                                    placeholder="Filter"
+                                    class="mt-1 py-1 w-full border rounded">
+                            </th>
+                            <th class="border  py-2 cursor-pointer"
+                                @click="sortBy('tone')">
+                                Tono
+                                <input v-model="filterTone" type="text"
+                                    placeholder="Filtrar tono"
+                                    class="mt-1 py-1 w-full border rounded">
+                            </th>
+                            <th class="border  py-2 cursor-pointer"
+                                @click="sortBy('tag')">
+                                Tag
+                                <input v-model="filterTag" type="text"
+                                    placeholder="Filtrar tag"
+                                    class="mt-1 py-1 w-full border rounded">
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody style="font-size: 0.8em;">
+                        <tr v-for="song in filteredSongsTable" :key="song.id"
+                            class="hover:bg-gray-100">
+                            <td class="border  py-2 px-1">{{ song.title }}</td>
+                            <td class="border  py-2 text-center">{{ song.tone
+                                }}</td>
+                            <td class="border py-2 text-center">{{ song.tag
+                                }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-        .background-gradient {
-            background: linear-gradient(135deg, #6EE7B7 0%, #3B82F6 100%);
-        }
+            <!-- Contenido de la canción seleccionada -->
+            <div v-if="selectedSong"
+                class="p-10 bg-gray-100 min-h-screen relative">
+                <button @click="goToHome" class="back-button top-4">Volver al
+                    Inicio</button>
+                <br><br>
+                <div class="text-center" style="font-size: 1em;">
+                    <h2 class="text-4xl font-bold mb-4">
+                        {{ selectedSong.title }}
+                        <button @click="editSong(selectedSong)"
+                            class="ml-2 px-2 py-1 rounded">🪄</button>
+                    </h2>
 
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            height: 100vh;
-            /* Altura completa de la ventana */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-            overflow: hidden;
-        }
+                    <div v-if="editingSong"
+                        class="rounded-lg mt-10">
+                        <h2 class="text-1xl font-bold mb-4">Editar Canción</h2>
+                        <form @submit.prevent="updateSong">
+                            <div
+                                class="text-justify"
+                                style="color: gray; font-size: 0.8em;"><label>Título:</label></div>
+                            <input v-model="editingSong.title"
+                                placeholder="Título"
+                                class="mb-2 p-2 border rounded w-full">
+                            <div
+                                class="text-justify"
+                                style="color: gray; font-size: 0.8em;"><label>Artista:</label></div>
+                            <input v-model="editingSong.artist"
+                                placeholder="Artista"
+                                class="mb-2 p-2 border rounded w-full">
+                            <div
+                                class="text-justify"
+                                style="color: gray; font-size: 0.8em;"><label>Tag:</label></div>
+                            <input v-model="editingSong.tag"
+                                placeholder="Tag"
+                                class="mb-2 p-2 border rounded w-full">
+                            <div
+                                class="text-justify"
+                                style="color: gray; font-size: 0.8em;"><label>Tone:</label></div>
+                            <input v-model="editingSong.tone"
+                                placeholder="Tonalidad"
+                                class="mb-2 p-2 border rounded w-full">
+                            <div
+                                class="text-justify"
+                                style="color: gray; font-size: 0.8em;"><label>BPM:</label></div>
+                            <input v-model="editingSong.bpm" placeholder="BPM"
+                                type="number"
+                                class="mb-2 p-2 border rounded w-full">
+                            <div
+                                class="text-justify"
+                                style="color: gray; font-size: 0.8em;"><label>Descripción:</label></div>
+                            <input v-model="editingSong.description"
+                                placeholder="Descripción"
+                                class="mb-2 p-2 border rounded w-full">
+                            <div class="text-justify"
+                                style="color: gray; font-size: 0.8em;">
+                                <label>Letras:</label>
+                                <span style="color: darkgrey; cursor: pointer;"
+                                    onclick="toggleExpandTextArea('textAreaEditing', this)">Expandir
+                                    letras ▼</span>
+                            </div>
+                            <textarea v-model="editingSong.lyrics"
+                                placeholder="Letras de la canción"
+                                class="mb-2 p-2 border rounded w-full"
+                                oninput="adjustHeight(this)" rows="1"
+                                id="textAreaEditing"
+                                style="width:100%;"></textarea>
+                            <div
+                                class="text-justify"
+                                style="color: gray; font-size: 0.8em;"><label>Spotify:</label></div>
+                            <input v-model="editingSong.spotify"
+                                placeholder="Spotify URL"
+                                class="mb-2 p-2 border rounded w-full">
+                            <div
+                                class="text-justify"
+                                style="color: gray; font-size: 0.8em;"><label>Youtube:</label></div>
+                            <input v-model="editingSong.youtube"
+                                placeholder="YouTube URL"
+                                class="mb-2 p-2 border rounded w-full">
+                            <br><br>
+                            <button type="submit"
+                                class="bg-green-500 text-white px-4 py-2 rounded">Guardar
+                                Cambios</button>
+                            <button @click="cancelEdit" type="button"
+                                class="ml-2 bg-red-500 text-white px-4 py-2 rounded">Cancelar</button>
+                        </form>
+                    </div>
 
-        .back-button {
-            position: fixed;
-            /* top: 10px; */
-            right: 10px;
-            z-index: 30;
-            background-color: #3B82F6;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+                    <br><br>
 
-        .logo {
-            width: 120px;
-            height: auto;
-            margin-bottom: 20px;
-        }
-
-        .headline {
-            animation: fadeIn 2s ease-in-out;
-        }
-
-        .description {
-            animation: slideUp 2s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(20px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-    </style>
-</head>
-
-<body class="bg-gray-100 text-gray-900">
-
-    <div id="app" class="relative">
-        <!-- Menú lateral -->
-        <div id="sidebar" :class="{ 'show': sidebarVisible }" class="w-128 bg-white shadow-lg fixed top-0 left-0">
-            <br><br><br>
-            <div class="scrollable-list p-5">
-                <input v-model="searchQuery" type="text" placeholder="Search for a song..."
-                    class="mb-5 p-2 w-full border rounded">
-                <ul class="space-y-2">
-                    <li v-for="song in filteredSongs" :key="song.id" class="song-item">
-                        <button @click="selectSong(song)"
-                            class="text-left w-full hover:text-blue-500 focus:outline-none">{{ song.title }}</button>
-                    </li>
-                </ul>
+                    <p v-if="selectedSong.artist"
+                        class="text-gray-700 mb-2"><strong>Artist:</strong> {{
+                        selectedSong.artist }}</p>
+                    <p v-if="selectedSong.description"
+                        class="text-gray-700 mb-2"><strong>Description:</strong>
+                        {{ selectedSong.description }}</p>
+                    <p v-if="selectedSong.tone"
+                        class="text-gray-700 mb-2"><strong>Tone:</strong> {{
+                        selectedSong.tone }}</p>
+                    <p v-if="selectedSong.bpm"
+                        class="text-gray-700 mb-2"><strong>BPM:</strong> {{
+                        selectedSong.bpm }}</p>
+                    <div v-if="selectedSong.spotify" class="mt-4">
+                        <a :href="selectedSong.spotify" target="_blank"
+                            class="text-blue-500 underline">
+                            Ver en Spotify
+                        </a>
+                    </div>
+                    <div v-if="selectedSong.youtube" class="mt-4">
+                        <a :href="selectedSong.youtube" target="_blank"
+                            class="text-blue-500 underline">
+                            Ver en YouTube
+                        </a>
+                    </div>
+                    <div style="font-size: 1.2em;">
+                        <p class="mt-6 whitespace-pre-wrap"
+                            v-html="formattedLyrics"></p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Botón para mostrar/ocultar el menú lateral -->
-        <button @click="toggleSidebar"
-            class="fixed top-4 left-4 text-2xl bg-blue-500 text-white px-2 py-1 rounded shadow-lg menu-button">
-            ☰
-        </button>
-
-        <!-- Pantalla principal -->
-        <div v-if="!selectedSong"
-            class="container bg-gradient-to-r from-blue-400 to-green-400 text-center text-white shadow-lg p-10">
-            <!-- Logo -->
-            <div class="mb-8">
-                <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="50" cy="50" r="50" fill="#ffffff" />
-                    <text x="50" y="50" font-size="10" text-anchor="middle" fill="#3B82F6" dy=".3em">Centro de Fe</text>
-                    <text x="50" y="60" font-size="8" text-anchor="middle" fill="#3B82F6" dy=".3em">Esperanza y
-                        Amor</text>
-                </svg>
-            </div>
-            <h1 class="text-xl font-bold mb-4 headline">Bienvenido a mi repertorio de canciones</h1>
-            <p class="text-xl mb-8 description">Descubre y visualiza las letras de las canciones cristianas utilizadas
-                en el Centro de Fe Esperanza y Amor de Puerto Escondido. Usa el menú para buscar y seleccionar
-                canciones, y ver sus detalles en pantalla completa.</p>
-            <p class="text-lg">Para empezar, abre el menú y elige una canción de la lista.</p>
-            <div class="text-center my-4">
-                <button @click="showForm = !showForm" class=" text-white px-4 py-2 rounded">
-                    {{ showForm ? 'Ocultar Formulario' : 'Agregar Nueva Canción' }}
-                </button>
-            </div>
-        </div>
+        <script
+            src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+        <script type="module" src="index.js"></script>
+        <script>
+            // Variable global para almacenar el estado expandido
+            let isExpanded = false;
         
-        <div v-if="showForm" class="p-10 shadow-lg rounded-lg mt-10">
-            <h2 class="text-2xl font-bold mb-4">Agregar Nueva Canción</h2>
-            <form @submit.prevent="addSong">
-                <input v-model="newSong.title" placeholder="Título" class="mb-2 p-2 border rounded w-full">
-                <input v-model="newSong.artist" placeholder="Artista" class="mb-2 p-2 border rounded w-full">
-                <input v-model="newSong.tone" placeholder="Tonalidad" class="mb-2 p-2 border rounded w-full">
-                <input v-model="newSong.bpm" placeholder="BPM" type="number" class="mb-2 p-2 border rounded w-full">
-                <input v-model="newSong.description" placeholder="Descripción" class="mb-2 p-2 border rounded w-full">
-                <textarea v-model="newSong.lyrics" placeholder="Letras de la canción" class="mb-2 p-2 border rounded w-full"></textarea>
-                <input v-model="newSong.spotify" placeholder="Spotify URL" class="mb-2 p-2 border rounded w-full">
-                <input v-model="newSong.youtube" placeholder="YouTube URL" class="mb-2 p-2 border rounded w-full">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Agregar Canción</button>
-            </form>
-        </div>
-
-        <!-- Contenido de la canción seleccionada -->
-        <div v-if="selectedSong" class="p-10 bg-gray-100 min-h-screen relative">
-            <button @click="goToHome" class="back-button top-4">Volver al Inicio</button>
-            <br><br>
-            <div class="text-center" style="font-size: 1em;">
-                <h2 class="text-4xl font-bold mb-4">{{ selectedSong.title }}</h2>
-                <p v-if="selectedSong.artist" class="text-gray-700 mb-2"><strong>Artist:</strong> {{ selectedSong.artist }}</p>
-                <p v-if="selectedSong.description" class="text-gray-700 mb-2"><strong>Description:</strong> {{ selectedSong.description }}</p>
-                <p v-if="selectedSong.tone" class="text-gray-700 mb-2"><strong>Tone:</strong> {{ selectedSong.tone }}</p>
-                <p v-if="selectedSong.bpm" class="text-gray-700 mb-2"><strong>BPM:</strong> {{ selectedSong.bpm }}</p>
-                <div v-if="selectedSong.spotify" class="mt-4">
-                    <a :href="selectedSong.spotify" target="_blank" class="text-blue-500 underline">
-                        Ver en Spotify
-                    </a>
-                </div>
-                <div v-if="selectedSong.youtube" class="mt-4">
-                    <a :href="selectedSong.youtube" target="_blank" class="text-blue-500 underline">
-                        Ver en YouTube
-                    </a>
-                </div>
-                <div style="font-size: 1.2em;">
-                    <p class="mt-6 whitespace-pre-wrap" v-html="formattedLyrics"></p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
-    <script type="module" src="index.js"></script>
-    
-</body>
+            function toggleExpandTextArea(textAreaId, linkElement) {
+                const textarea = document.getElementById(textAreaId);
+                
+                if (isExpanded) {
+                    // Si está expandido, colapsar a altura original y cambiar texto del enlace
+                    textarea.style.height = "auto"; 
+                    textarea.rows = 1; // Ajusta el valor a la altura colapsada deseada
+                    linkElement.textContent = "Expandir letras ▼";
+                } else {
+                    // Si está colapsado, expandir a su altura completa y cambiar texto del enlace
+                    textarea.style.height = "auto";
+                    textarea.style.height = textarea.scrollHeight + "px";
+                    linkElement.textContent = "Colapsar letras ▲";
+                }
+        
+                // Cambiar el estado
+                isExpanded = !isExpanded;
+            }
+        
+            function adjustHeight(textarea) {
+                textarea.style.height = "auto"; // Resetea la altura para evitar crecimientos infinitos
+                textarea.style.height = textarea.scrollHeight + "px"; // Ajusta la altura según el contenido
+            }
+        </script>
+    </body>
 
 </html>
